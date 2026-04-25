@@ -20,7 +20,5 @@ venv/
 node_modules/
 .npm
 
-# Build outputs
-build/
+# Build outputs (tracked for GitHub Pages)
 dist/
-*.html
