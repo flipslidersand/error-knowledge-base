@@ -6,30 +6,148 @@
     <title>Error Knowledge Base</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
                background: #f5f5f5; color: #333; line-height: 1.6; }
         .container { max-width: 900px; margin: 0 auto; padding: 20px; }
         h1 { margin: 20px 0; color: #222; }
-        .category { background: white; border-radius: 8px; padding: 20px; margin: 20px 0; 
+        #search-box { width: 100%; padding: 10px 14px; font-size: 1em; border: 2px solid #ddd;
+                     border-radius: 8px; margin: 16px 0; box-sizing: border-box; }
+        #search-box:focus { border-color: #0066cc; outline: none; }
+        #tag-filter { margin: 16px 0; }
+        #filter-label { font-size: 0.85em; color: #666; margin-bottom: 6px; display: block; }
+        .tag { display: inline-block; background: #e8f0ff; color: #0044aa; border-radius: 12px;
+               padding: 2px 10px; font-size: 0.8em; margin: 2px; cursor: pointer;
+               border: 1px solid #c0d0f0; }
+        .tag:hover { background: #0066cc; color: white; }
+        .tag.active { background: #0066cc; color: white; }
+        .severity { display: inline-block; border-radius: 4px; padding: 1px 8px; font-size: 0.75em;
+                   font-weight: bold; color: white; margin-left: 6px; }
+        .severity-high { background: #cc3300; }
+        .severity-medium { background: #cc7700; }
+        .severity-low { background: #007700; }
+        .category { background: white; border-radius: 8px; padding: 20px; margin: 20px 0;
                    box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         .category h2 { color: #0066cc; margin-bottom: 15px; font-size: 1.3em; }
-        .error-list { list-style: none; }
-        .error-list li { padding: 10px 0; border-bottom: 1px solid #eee; }
-        .error-list li:last-child { border-bottom: none; }
-        .error-list a { color: #0066cc; text-decoration: none; }
-        .error-list a:hover { text-decoration: underline; }
+        .error-card { padding: 12px 0; border-bottom: 1px solid #eee; }
+        .error-card:last-child { border-bottom: none; }
+        .error-card[data-hidden="true"] { display: none; }
+        .error-card a { color: #0066cc; text-decoration: none; }
+        .error-card a:hover { text-decoration: underline; }
         footer { text-align: center; margin-top: 40px; color: #666; font-size: 0.9em; }
+    
     </style>
 </head>
 <body>
     <div class="container">
         <h1>🔍 Error Knowledge Base</h1>
         <p>実装中に踏んだエラーをナレッジ化したリポジトリです。</p>
+
+        <input id="search-box" type="text" placeholder="エラーを検索...">
+
+        <div id="tag-filter">
+            <span id="filter-label">タグで絞り込み：</span>
+            <span class="tag" onclick="filterByTag(this, 'bundling')">bundling</span>
+            <span class="tag" onclick="filterByTag(this, 'cache')">cache</span>
+            <span class="tag" onclick="filterByTag(this, 'configuration')">configuration</span>
+            <span class="tag" onclick="filterByTag(this, 'css')">css</span>
+            <span class="tag" onclick="filterByTag(this, 'esm')">esm</span>
+            <span class="tag" onclick="filterByTag(this, 'module-resolution')">module-resolution</span>
+            <span class="tag" onclick="filterByTag(this, 'multi-file')">multi-file</span>
+            <span class="tag" onclick="filterByTag(this, 'named-export')">named-export</span>
+            <span class="tag" onclick="filterByTag(this, 'postcss')">postcss</span>
+            <span class="tag" onclick="filterByTag(this, 'react')">react</span>
+            <span class="tag" onclick="filterByTag(this, 'tailwind')">tailwind</span>
+            <span class="tag" onclick="filterByTag(this, 'typescript')">typescript</span>
+            <span class="tag" onclick="filterByTag(this, 'v4')">v4</span>
+            <span class="tag" onclick="filterByTag(this, 'vite')">vite</span>
+            <span class="tag" onclick="filterByTag(this, 'ALL')" style="background:#eee">すべて</span>
+        </div>
         <hr style="margin: 20px 0; border: none; border-top: 1px solid #ddd;">
+        <div class="category">
+            <h2>📁 JAVASCRIPT</h2>
+            <div class="error-card" data-tags="vite,react,tailwind,postcss,css,v4,configuration" data-title="&quot;Vite: GET /src/index.css net::ERR_ABORTED 500 (Tailwind CSS v4 PostCSS)&quot;" data-text="Vite: CSS 500 エラー（Tailwind v4 PostCSS 設定不正） 症状 ブラウザコンソールに以下のエラー： ターミナルには エラーが出力： あるいは： CSS が読み込まれず、ページが完全にスタイルなし状態で表示される。 原因 Tailwind CSS v4 では PostCSS の設定方式が変更された： ✅ **v3 (旧方式)**: + を手動で設定 ✅ **v4 (新方式)**: PostCSS が不要。CSS ファイルで を使用 このプロジェクトでは旧方式の設定（ 、 ）がある状態で Tailwind v4 を導入しようとしたため、プラグイン認識エラーが発生した。 さらに に directives が残っていると、PostCSS が処理方法を見失う。 解決策 試した失敗パターン 最終的な解決方法（成功） **Tailwind と PostCSS 関連の設定ファイルを完全削除する***CSS ファイルから directives を削除*代替手段 Tailwind が不要な場合（このプロジェクトでは不要）： 予防 [ ] **Tailwind CSS の導入は">
+                <a href="javascript/tailwind-v4-postcss-500-error.html">&quot;Vite: GET /src/index.css net::ERR_ABORTED 500 (Tailwind CSS v4 PostCSS)&quot;</a>
+                <span class="severity severity-high">high</span>
+                <span class="tag" style="cursor:pointer" onclick="filterByTag(this, 'vite')">vite</span>
+                <span class="tag" style="cursor:pointer" onclick="filterByTag(this, 'react')">react</span>
+                <span class="tag" style="cursor:pointer" onclick="filterByTag(this, 'tailwind')">tailwind</span>
+                <span class="tag" style="cursor:pointer" onclick="filterByTag(this, 'postcss')">postcss</span>
+                <span class="tag" style="cursor:pointer" onclick="filterByTag(this, 'css')">css</span>
+                <span class="tag" style="cursor:pointer" onclick="filterByTag(this, 'v4')">v4</span>
+                <span class="tag" style="cursor:pointer" onclick="filterByTag(this, 'configuration')">configuration</span>
+            </div>
+            <div class="error-card" data-tags="vite,react,typescript,esm,multi-file,cache,bundling" data-title="&quot;Vite: Complex multi-file export chaos (TypeScript not recognized)&quot;" data-text="Vite: 複合エラー（複数ファイル分散による export 認識失敗） 症状 複数の症状が同時に発生： 1. **Named Export エラー*2. **TypeScript ファイルがブラウザで認識されない*3. **ホットモジュールリロード（HMR）が動作しない*ファイル保存時にブラウザが更新されない サーバーを再起動してもエラー消えない 原因 Vite の ESM（ECMAScript Modules）モジュール解決が、複雑な依存関係を持つ複数ファイル構成に対応できなくなった： このような **循環参照*または **相互参照*が生じると： Vite のキャッシュ（ ）に矛盾した情報が残る モジュール解決が失敗する TypeScript の型情報がブラウザに伝わらない HMR が機能停止 解決策 試した失敗パターン（すべて無効） **これらはすべて一時的な効果しかなく、ファイル保存時に再発する*最終的な解決方法（成功） **コンポーネント・型・ユーティリティを全て単一ファイルに統合する*ファイル構成を以下のように変更： App.tsx に以下を統合： 重要なポイント 1. *">
+                <a href="javascript/vite-esm-multi-file-export-chaos.html">&quot;Vite: Complex multi-file export chaos (TypeScript not recognized)&quot;</a>
+                <span class="severity severity-high">high</span>
+                <span class="tag" style="cursor:pointer" onclick="filterByTag(this, 'vite')">vite</span>
+                <span class="tag" style="cursor:pointer" onclick="filterByTag(this, 'react')">react</span>
+                <span class="tag" style="cursor:pointer" onclick="filterByTag(this, 'typescript')">typescript</span>
+                <span class="tag" style="cursor:pointer" onclick="filterByTag(this, 'esm')">esm</span>
+                <span class="tag" style="cursor:pointer" onclick="filterByTag(this, 'multi-file')">multi-file</span>
+                <span class="tag" style="cursor:pointer" onclick="filterByTag(this, 'cache')">cache</span>
+                <span class="tag" style="cursor:pointer" onclick="filterByTag(this, 'bundling')">bundling</span>
+            </div>
+            <div class="error-card" data-tags="vite,react,typescript,esm,named-export,cache,module-resolution" data-title="&quot;Vite: The requested module does not provide an export named &#x27;Priority&#x27;&quot;" data-text="Vite: モジュール named export エラー（Priority 認識されない） 症状 ブラウザコンソールで以下のエラーが表示： App.tsx で 型を import しようとすると、モジュール解決が失敗する。 原因 ✅ 型定義を複数ファイルに分散（ + 他ファイル） Vite のモジュール解決機構がファイル間の import/export 関係を正しく追跡できない Vite キャッシュ（ フォルダ）に古い状態が残っている ESM モジュール解決で複雑な依存関係が競合 解決策 試した失敗パターン 最終的な解決方法（成功） **型定義を単一ファイルに統合する*App.tsx で import: 重要なポイント 1. **複数の型定義ファイルを避ける*、 など複数ファイルの分散は避ける すべて 1 ファイルに統合 2. **初期セットアップは単一ファイル実装*にコンポーネント・型・ロジックをまとめる 動作確認後に段階的に分割 予防 [ ] **初期段階では単一ファイル実装を原則とする*[ ] **型定義は絶対に複数ファイル分散しない*[ ] **Vite キャッシュを定期的にク">
+                <a href="javascript/vite-named-export-not-found.html">&quot;Vite: The requested module does not provide an export named &#x27;Priority&#x27;&quot;</a>
+                <span class="severity severity-medium">medium</span>
+                <span class="tag" style="cursor:pointer" onclick="filterByTag(this, 'vite')">vite</span>
+                <span class="tag" style="cursor:pointer" onclick="filterByTag(this, 'react')">react</span>
+                <span class="tag" style="cursor:pointer" onclick="filterByTag(this, 'typescript')">typescript</span>
+                <span class="tag" style="cursor:pointer" onclick="filterByTag(this, 'esm')">esm</span>
+                <span class="tag" style="cursor:pointer" onclick="filterByTag(this, 'named-export')">named-export</span>
+                <span class="tag" style="cursor:pointer" onclick="filterByTag(this, 'cache')">cache</span>
+                <span class="tag" style="cursor:pointer" onclick="filterByTag(this, 'module-resolution')">module-resolution</span>
+            </div>
+        </div>
         <footer>
-            <p>Last updated: 2026-04-25 11:15:09</p>
-            <p><a href="https://github.com">GitHub Repository</a></p>
+            <p>Last updated: 2026-04-26 20:45:02</p>
+            <p><a href="https://github.com/flipslidersand/error-knowledge-base">GitHub Repository</a></p>
         </footer>
     </div>
+
+    <script>
+        let activeTag = null;
+        let searchQuery = '';
+
+        function filterByTag(el, tag) {
+            if (tag === 'ALL' || activeTag === tag) {
+                activeTag = null;
+                document.querySelectorAll('#tag-filter .tag').forEach(t => t.classList.remove('active'));
+            } else {
+                activeTag = tag;
+                document.querySelectorAll('#tag-filter .tag').forEach(t => t.classList.remove('active'));
+                el.classList.add('active');
+            }
+            applyFilters();
+        }
+
+        function applyFilters() {
+            const cards = document.querySelectorAll('.error-card');
+            const q = searchQuery.toLowerCase().trim();
+
+            cards.forEach(card => {
+                const cardTags = (card.dataset.tags || '').split(',').filter(t => t);
+                const cardTitle = (card.dataset.title || '').toLowerCase();
+                const cardText = (card.dataset.text || '').toLowerCase();
+
+                const tagMatch = !activeTag || cardTags.includes(activeTag);
+                const textMatch = !q || cardTitle.includes(q) || cardText.includes(q) ||
+                                  cardTags.some(t => t.includes(q));
+
+                card.dataset.hidden = !(tagMatch && textMatch);
+            });
+
+            // カテゴリブロックを全カード非表示なら隠す
+            document.querySelectorAll('.category').forEach(cat => {
+                const visible = cat.querySelectorAll('.error-card:not([data-hidden="true"])');
+                cat.style.display = visible.length ? '' : 'none';
+            });
+        }
+
+        document.getElementById('search-box').addEventListener('input', e => {
+            searchQuery = e.target.value;
+            applyFilters();
+        });
+    </script>
 </body>
 </html>
