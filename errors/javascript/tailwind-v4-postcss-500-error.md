@@ -2,6 +2,7 @@
 title: "Vite: GET /src/index.css net::ERR_ABORTED 500 (Tailwind CSS v4 PostCSS)"
 tags: [vite, react, tailwind, postcss, css, v4, configuration]
 severity: high
+source: personal
 project: work-log-ui
 env: "Node.js 18, Vite 5, Tailwind CSS v4"
 os: Ubuntu

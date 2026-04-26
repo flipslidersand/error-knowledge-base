@@ -63,6 +63,7 @@ def load_all_errors(errors_dir: Path) -> List[Dict]:
             title = meta.get('title') or extract_h1(body) or md_file.stem
             tags = meta.get('tags', [])
             severity = meta.get('severity', 'medium')
+            source = meta.get('source', 'web')  # デフォルト: web
 
             # 検索用テキスト（本文から Markdown 記号を除去）
             search_text = sanitize_text_for_search(body)[:500]
@@ -74,6 +75,7 @@ def load_all_errors(errors_dir: Path) -> List[Dict]:
                 'title': title,
                 'tags': tags if isinstance(tags, list) else [],
                 'severity': severity,
+                'source': source,
                 'meta': meta,
                 'body_md': body,
                 'search_text': search_text,
@@ -140,11 +142,16 @@ def build():
         .category { background: white; border-radius: 8px; padding: 20px; margin: 20px 0;
                    box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         .category h2 { color: #0066cc; margin-bottom: 15px; font-size: 1.3em; }
+        .category h3 { color: #0066cc; margin-bottom: 15px; font-size: 1.1em; }
         .error-card { padding: 12px 0; border-bottom: 1px solid #eee; }
         .error-card:last-child { border-bottom: none; }
         .error-card[data-hidden="true"] { display: none; }
         .error-card a { color: #0066cc; text-decoration: none; }
         .error-card a:hover { text-decoration: underline; }
+        .source-badge { display: inline-block; border-radius: 4px; padding: 1px 8px; font-size: 0.7em;
+                       font-weight: bold; color: white; margin-left: 4px; }
+        .source-personal { background: #0066cc; }
+        .source-web { background: #666666; }
         footer { text-align: center; margin-top: 40px; color: #666; font-size: 0.9em; }
     """
 
@@ -177,38 +184,48 @@ def build():
     index_html += '        </div>\n'
     index_html += '        <hr style="margin: 20px 0; border: none; border-top: 1px solid #ddd;">\n'
 
-    # カテゴリごとにエラーカードを生成
-    for category_dir in sorted(errors_dir.iterdir()):
-        if not category_dir.is_dir():
+    # source ごとにグループ分け（personal -> web）
+    for source_type in ['personal', 'web']:
+        source_errors = [e for e in errors if e.get('source', 'web') == source_type]
+        if not source_errors:
             continue
 
-        category_name = category_dir.name
-        category_errors = [e for e in errors if e['category'] == category_name]
+        source_label = '🎯 実体験' if source_type == 'personal' else '📚 参考・学習'
+        index_html += f'        <h2 style="margin: 30px 0 15px; color: #333; border-bottom: 2px solid #0066cc; padding-bottom: 10px;">{source_label}</h2>\n'
 
-        if not category_errors:
-            continue
+        # カテゴリごとにエラーカードを生成
+        categories_in_source = sorted(set(e['category'] for e in source_errors))
 
-        index_html += f'        <div class="category">\n'
-        index_html += f'            <h2>📁 {category_name.upper()}</h2>\n'
+        for category_name in categories_in_source:
+            category_errors = [e for e in source_errors if e['category'] == category_name]
 
-        for error in category_errors:
-            tags_str = ','.join(error.get('tags', []))
-            title = html.escape(error['title'])
-            search_text = html.escape(error['search_text'])
-            severity = html.escape(error.get('severity', 'medium'))
-            html_name = error['stem'] + ".html"
+            if not category_errors:
+                continue
 
-            index_html += f'            <div class="error-card" data-tags="{tags_str}" data-title="{title}" data-text="{search_text}">\n'
-            index_html += f'                <a href="{error["html_path"]}">{title}</a>\n'
-            index_html += f'                <span class="severity severity-{severity}">{severity}</span>\n'
+            index_html += f'        <div class="category">\n'
+            index_html += f'            <h3>📁 {category_name.upper()}</h3>\n'
 
-            if error.get('tags'):
-                for tag in error['tags']:
-                    index_html += f'                <span class="tag" style="cursor:pointer" onclick="filterByTag(this, {repr(tag)})">{html.escape(tag)}</span>\n'
+            for error in category_errors:
+                tags_str = ','.join(error.get('tags', []))
+                title = html.escape(error['title'])
+                search_text = html.escape(error['search_text'])
+                severity = html.escape(error.get('severity', 'medium'))
+                source = html.escape(error.get('source', 'web'))
+                source_label = '実体験' if source == 'personal' else '参考'
+                html_name = error['stem'] + ".html"
 
-            index_html += '            </div>\n'
+                index_html += f'            <div class="error-card" data-tags="{tags_str}" data-title="{title}" data-text="{search_text}">\n'
+                index_html += f'                <a href="{error["html_path"]}">{title}</a>\n'
+                index_html += f'                <span class="severity severity-{severity}">{severity}</span>\n'
+                index_html += f'                <span class="source-badge source-{source}">{source_label}</span>\n'
 
-        index_html += '        </div>\n'
+                if error.get('tags'):
+                    for tag in error['tags']:
+                        index_html += f'                <span class="tag" style="cursor:pointer" onclick="filterByTag(this, {repr(tag)})">{html.escape(tag)}</span>\n'
+
+                index_html += '            </div>\n'
+
+            index_html += '        </div>\n'
 
     index_html += f"""        <footer>
             <p>Last updated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}</p>
@@ -296,6 +313,8 @@ def build():
                 tags_html += f'<span class="tag">{html.escape(tag)}</span> '
 
         severity = html.escape(error.get('severity', 'medium'))
+        source = html.escape(error.get('source', 'web'))
+        source_label = '実体験' if source == 'personal' else '参考'
 
         detail_css = """        * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -320,6 +339,10 @@ def build():
         .severity-low { background: #007700; }
         .tag { display: inline-block; background: #e8f0ff; color: #0044aa; border-radius: 12px;
                padding: 2px 10px; font-size: 0.8em; margin: 2px; border: 1px solid #c0d0f0; }
+        .source-badge { display: inline-block; border-radius: 4px; padding: 1px 8px; font-size: 0.7em;
+                       font-weight: bold; color: white; margin-left: 6px; }
+        .source-personal { background: #0066cc; }
+        .source-web { background: #666666; }
         .related-section { margin-top: 40px; padding-top: 20px; border-top: 2px solid #eee; }
         .related-section h2 { color: #555; font-size: 1.1em; margin-bottom: 12px; }
         .related-list { list-style: none; }
@@ -346,6 +369,7 @@ def build():
         <div class="page-meta">
             <span>カテゴリ: <strong>{html.escape(category_name)}</strong></span>
             <span class="severity severity-{severity}">{severity}</span>
+            <span class="source-badge source-{source}">{source_label}</span>
             {tags_html}
         </div>
         {html_content}

@@ -2,6 +2,7 @@
 title: "Vite: The requested module does not provide an export named 'Priority'"
 tags: [vite, react, typescript, esm, named-export, cache, module-resolution]
 severity: medium
+source: personal
 project: work-log-ui
 env: "Node.js 18, Vite 5, React 18, TypeScript 5"
 os: Ubuntu

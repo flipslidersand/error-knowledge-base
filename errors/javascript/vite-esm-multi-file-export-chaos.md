@@ -2,6 +2,7 @@
 title: "Vite: Complex multi-file export chaos (TypeScript not recognized)"
 tags: [vite, react, typescript, esm, multi-file, cache, bundling]
 severity: high
+source: personal
 project: work-log-ui
 env: "Node.js 18, Vite 5, React 18, TypeScript 5"
 os: Ubuntu
