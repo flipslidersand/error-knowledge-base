@@ -51,6 +51,8 @@
 
         <div id="tag-filter">
             <span id="filter-label">タグで絞り込み：</span>
+            <span class="tag" onclick="filterByTag(this, 'async')">async</span>
+            <span class="tag" onclick="filterByTag(this, 'browser-navigation')">browser-navigation</span>
             <span class="tag" onclick="filterByTag(this, 'bundling')">bundling</span>
             <span class="tag" onclick="filterByTag(this, 'cache')">cache</span>
             <span class="tag" onclick="filterByTag(this, 'configuration')">configuration</span>
@@ -59,8 +61,10 @@
             <span class="tag" onclick="filterByTag(this, 'module-resolution')">module-resolution</span>
             <span class="tag" onclick="filterByTag(this, 'multi-file')">multi-file</span>
             <span class="tag" onclick="filterByTag(this, 'named-export')">named-export</span>
+            <span class="tag" onclick="filterByTag(this, 'nextjs')">nextjs</span>
             <span class="tag" onclick="filterByTag(this, 'postcss')">postcss</span>
             <span class="tag" onclick="filterByTag(this, 'react')">react</span>
+            <span class="tag" onclick="filterByTag(this, 'state-management')">state-management</span>
             <span class="tag" onclick="filterByTag(this, 'tailwind')">tailwind</span>
             <span class="tag" onclick="filterByTag(this, 'typescript')">typescript</span>
             <span class="tag" onclick="filterByTag(this, 'v4')">v4</span>
@@ -71,6 +75,16 @@
         <h2 style="margin: 30px 0 15px; color: #333; border-bottom: 2px solid #0066cc; padding-bottom: 10px;">🎯 実体験</h2>
         <div class="category">
             <h3>📁 JAVASCRIPT</h3>
+            <div class="error-card" data-tags="nextjs,react,state-management,browser-navigation,async" data-title="&quot;Next.js: Browser back button causes infinite loading state&quot;" data-text="Next.js: ブラウザ戻るボタンで無限ローディング状態 症状 詳細ページからダッシュボードに戻るときにブラウザの戻るボタンを使用すると、ページが無限ローディング状態のままハングする。F5（完全リロード）を押すまで応答しない。 原因 ✅ **マウント/アンマウント時のレースコンディション*ブラウザ戻るボタン使用時に、コンポーネント破棄と非同期処理の完了タイミングがズレる ✅ **アンマウント後の状態更新試行*破棄されたコンポーネントに対して state を設定しようとする ✅ **メモリリーク：クローズされない Promise*fetch 完了後の state 更新が pending のまま残る ✅ **cleanup 欠落*useEffect で適切に cleanup 関数を定義していない 解決策 1. DecisionLogList Component に を追加 2. Timeout 機構で強制的にローディングを終了 3. useAuth Hook で isMounted フラグを使用 4. AbortController で fetch をキャンセル（推奨） 予防 [ ] *">
+                <a href="javascript/nextjs-browser-back-button-infinite-load.html">&quot;Next.js: Browser back button causes infinite loading state&quot;</a>
+                <span class="severity severity-high">high</span>
+                <span class="source-badge source-personal">実体験</span>
+                <span class="tag" style="cursor:pointer" onclick="filterByTag(this, 'nextjs')">nextjs</span>
+                <span class="tag" style="cursor:pointer" onclick="filterByTag(this, 'react')">react</span>
+                <span class="tag" style="cursor:pointer" onclick="filterByTag(this, 'state-management')">state-management</span>
+                <span class="tag" style="cursor:pointer" onclick="filterByTag(this, 'browser-navigation')">browser-navigation</span>
+                <span class="tag" style="cursor:pointer" onclick="filterByTag(this, 'async')">async</span>
+            </div>
             <div class="error-card" data-tags="vite,react,tailwind,postcss,css,v4,configuration" data-title="&quot;Vite: GET /src/index.css net::ERR_ABORTED 500 (Tailwind CSS v4 PostCSS)&quot;" data-text="Vite: CSS 500 エラー（Tailwind v4 PostCSS 設定不正） 症状 ブラウザコンソールに以下のエラー： ターミナルには エラーが出力： あるいは： CSS が読み込まれず、ページが完全にスタイルなし状態で表示される。 原因 Tailwind CSS v4 では PostCSS の設定方式が変更された： ✅ **v3 (旧方式)**: + を手動で設定 ✅ **v4 (新方式)**: PostCSS が不要。CSS ファイルで を使用 このプロジェクトでは旧方式の設定（ 、 ）がある状態で Tailwind v4 を導入しようとしたため、プラグイン認識エラーが発生した。 さらに に directives が残っていると、PostCSS が処理方法を見失う。 解決策 試した失敗パターン 最終的な解決方法（成功） **Tailwind と PostCSS 関連の設定ファイルを完全削除する***CSS ファイルから directives を削除*代替手段 Tailwind が不要な場合（このプロジェクトでは不要）： 予防 [ ] **Tailwind CSS の導入は">
                 <a href="javascript/tailwind-v4-postcss-500-error.html">&quot;Vite: GET /src/index.css net::ERR_ABORTED 500 (Tailwind CSS v4 PostCSS)&quot;</a>
                 <span class="severity severity-high">high</span>
@@ -109,7 +123,7 @@
             </div>
         </div>
         <footer>
-            <p>Last updated: 2026-04-26 22:02:18</p>
+            <p>Last updated: 2026-04-27 21:35:22</p>
             <p><a href="https://github.com/flipslidersand/error-knowledge-base">GitHub Repository</a></p>
         </footer>
     </div>
