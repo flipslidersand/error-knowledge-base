@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PR/コミットの close キーワードで複数 Issue を並べても先頭しか閉じない</title>
+    <title>PR チェーンの最終ブランチが main に届かない</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -50,42 +50,32 @@
             <span>カテゴリ: <strong>github</strong></span>
             <span class="severity severity-medium">medium</span>
             <span class="source-badge source-personal">実体験</span>
-            <span class="tag">github</span> <span class="tag">pr</span> <span class="tag">issue</span> <span class="tag">auto-close</span> <span class="tag">gotcha</span> 
+            <span class="tag">git</span> <span class="tag">github</span> <span class="tag">pr</span> <span class="tag">stacked-pr</span> 
         </div>
-        <h1>PR/コミットの close キーワードで複数 Issue を並べても先頭しか閉じない</h1>
-<h2>症状</h2>
-<p><code>close #2 #3 #4 #5 #6 #7</code> と書いたコミットで PR を default ブランチにマージしたが、
-自動クローズされたのは <strong>#2 だけ</strong>。#3-#7 は OPEN のまま残った。
-PR 本文の <code>Closes #2, #3, #4, #5, #6, #7</code> でも同様に先頭しか閉じない。</p>
+        <h2>症状</h2>
+<p>issue ブランチ間で PR を順番にマージした（#6→feat/issue-1, #7→feat/issue-2, …）が、
+main には最初の PR しか反映されておらず、<code>git log main</code> が短いままだった。</p>
 <h2>原因</h2>
-<p>GitHub の Issue 自動クローズは <strong>「キーワード + 単一の Issue 番号」</strong> のペアしか解釈しない。
-1 つのキーワードに番号をスペース区切り・カンマ区切りで並べても、後続の番号は
-プレーンな参照（リンク）として扱われ、クローズ対象にならない。</p>
+<p><code>gh pr create --base &lt;前のブランチ&gt;</code> でブランチ同士を繋いだため、
+最終ブランチ (feat/issue-N) を main にマージする手順が抜けていた。
+中間ブランチへのマージは成功しているが、main には到達していない。</p>
 <h2>解決策</h2>
-<p>各 Issue 番号に対してキーワードを繰り返す。</p>
-<div class="codehilite"><pre><span></span><code>Closes #2
-Closes #3
-Closes #4
-</code></pre></div>
-
-<p>取りこぼした場合は手動クローズで復旧できる。</p>
-<div class="codehilite"><pre><span></span><code><span class="k">for</span><span class="w"> </span>n<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="m">3</span><span class="w"> </span><span class="m">4</span><span class="w"> </span><span class="m">5</span><span class="w"> </span><span class="m">6</span><span class="w"> </span><span class="m">7</span><span class="p">;</span><span class="w"> </span><span class="k">do</span>
-<span class="w">  </span>gh<span class="w"> </span>issue<span class="w"> </span>close<span class="w"> </span><span class="nv">$n</span><span class="w"> </span>--repo<span class="w"> </span>&lt;owner&gt;/&lt;repo&gt;<span class="w"> </span>--reason<span class="w"> </span>completed<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--comment<span class="w"> </span><span class="s2">&quot;PR #9 で対応済み（自動クローズ漏れの手動対応）&quot;</span>
-<span class="k">done</span>
+<p>最終ブランチを main に直接マージする:</p>
+<div class="codehilite"><pre><span></span><code>git<span class="w"> </span>merge<span class="w"> </span>origin/&lt;最終ブランチ&gt;<span class="w"> </span>--no-ff<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;chore: 全実装を main にマージ&quot;</span>
+git<span class="w"> </span>push<span class="w"> </span>origin<span class="w"> </span>main
 </code></pre></div>
 
 <h2>予防</h2>
 <ul>
-<li>PR 本文/コミットで複数 Issue を閉じるときは <strong>1 番号ごとにキーワードを書く</strong></li>
-<li>マージ後は必ず対象 Issue の state を確認する（<code>gh issue view &lt;n&gt; --json state</code>）</li>
-<li>対応: <code>Closes #2, #3</code> / <code>close #2 #3</code> は NG、<code>Closes #2</code> を行ごとに列挙が正</li>
+<li>PR チェーンを使う場合は、最後の PR のベースを必ず <code>main</code> にする</li>
+<li>全マージ後に <code>git log main --oneline</code> で反映を確認する</li>
+<li>関連: <code>stacked-pr-base-merge-wrong-target.md</code>（base 未確認でマージした別パターン）</li>
 </ul>
                 <div class="related-section">
             <h2>関連するエラー</h2>
             <ul class="related-list">
-                <li><a href="../github/pr-chain-final-not-merged-to-main.html">PR チェーンの最終ブランチが main に届かない</a></li>
                 <li><a href="../github/stacked-pr-base-merge-wrong-target.html">stacked PR を base 未確認でマージし master に入らなかった（PR #148）</a></li>
+                <li><a href="../github/close-keyword-one-issue-per-keyword.html">PR/コミットの close キーワードで複数 Issue を並べても先頭しか閉じない</a></li>
                 <li><a href="../github/yukilabs-core-push-auth.html">yukilabs-core リポジトリへの push が 403 になる</a></li>
             </ul>
         </div>
